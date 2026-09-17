@@ -8,22 +8,24 @@ public:
   void begin();
   void update();
 
-  // One-shot events: true once per event.
+  // Physical edge events.
+  // These are independent from gesture classification.
   bool pressed();
   bool released();
+
+  // Mutually exclusive gesture events.
+  // A single action produces exactly one of these gestures.
   bool clicked();
   bool doubleClicked();
   bool tripleClicked();
   bool multiClicked(uint8_t count);
   bool longPressed();
-  bool longReleased();
 
-  // State / timing.
+  // State and timing.
   bool isPressed() const;
   bool isHolding() const;
   bool heldFor(uint32_t ms) const;
   uint32_t pressDuration() const;
-  uint8_t clickCount() const;
 
   // Configuration.
   void setDebounceTime(uint16_t ms);
@@ -31,6 +33,15 @@ public:
   void setMultiClickTime(uint16_t ms);
 
 private:
+  enum GestureType : uint8_t {
+    GESTURE_NONE,
+    GESTURE_CLICK,
+    GESTURE_DOUBLE,
+    GESTURE_TRIPLE,
+    GESTURE_MULTI,
+    GESTURE_LONG
+  };
+
   uint8_t _pin;
 
   bool _rawPressed = false;
@@ -46,16 +57,14 @@ private:
   uint16_t _multiClickMs = 350;
 
   uint8_t _pendingClicks = 0;
-  uint8_t _completedClicks = 0;
 
   bool _evPressed = false;
   bool _evReleased = false;
-  bool _evClick = false;
-  bool _evDouble = false;
-  bool _evTriple = false;
-  bool _evLongPressed = false;
-  bool _evLongReleased = false;
 
-  void clearTransientEvents();
-  static bool consume(bool &flag);
+  GestureType _gesture = GESTURE_NONE;
+  uint8_t _gestureCount = 0;
+
+  bool consumeEdge(bool &flag);
+  bool consumeGesture(GestureType type, uint8_t count = 0);
+  void setGesture(GestureType type, uint8_t count = 0);
 };
