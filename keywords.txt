@@ -1,0 +1,15 @@
+SmartButton	KEYWORD1
+begin	KEYWORD2
+update	KEYWORD2
+pressed	KEYWORD2
+released	KEYWORD2
+clicked	KEYWORD2
+doubleClicked	KEYWORD2
+tripleClicked	KEYWORD2
+multiClicked	KEYWORD2
+longPressed	KEYWORD2
+longReleased	KEYWORD2
+isPressed	KEYWORD2
+isHolding	KEYWORD2
+heldFor	KEYWORD2
+pressDuration	KEYWORD2
