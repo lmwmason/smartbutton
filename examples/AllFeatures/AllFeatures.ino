@@ -1,58 +1,105 @@
 #include <SmartButton.h>
 
+// Wiring:
+//
+// GPIO 2 ---- BUTTON ---- GND
+//
+// No external resistor is required.
+// SmartButton automatically enables INPUT_PULLUP.
+
 SmartButton button(2);
 
 void setup() {
   Serial.begin(115200);
 
-  // Wiring:
-  // GPIO 2 ---- BUTTON ---- GND
-  // No external resistor is required.
   button.begin();
 
+  // Debounce time for mechanical switch noise.
   button.setDebounceTime(30);
+
+  // Holding the button for at least 700 ms
+  // is classified as a long press.
   button.setLongPressTime(700);
+
+  // Time allowed between consecutive clicks.
   button.setMultiClickTime(350);
 }
 
 void loop() {
-  // Call this as often as possible. Do not put long delay() calls in loop().
+  // update() should be called as frequently as possible.
   button.update();
 
-  if (button.pressed())
-    Serial.println("Pressed");
 
-  if (button.released())
-    Serial.println("Released");
+  // ==================================================
+  // Physical edge events
+  //
+  // These are independent from gesture classification
+  // and may occur together with a gesture.
+  // ==================================================
 
-  if (button.clicked())
-    Serial.println("Single click");
+  if (button.pressed()) {
+    Serial.println("PRESSED");
+  }
 
-  if (button.doubleClicked())
-    Serial.println("Double click");
+  if (button.released()) {
+    Serial.println("RELEASED");
+  }
 
-  if (button.tripleClicked())
-    Serial.println("Triple click");
 
-  // Example for 4 or more clicks:
-  if (button.multiClicked(4))
-    Serial.println("4 clicks");
+  // ==================================================
+  // Exclusive gesture events
+  //
+  // A single completed action produces exactly one
+  // gesture from this group.
+  // ==================================================
 
-  if (button.longPressed())
-    Serial.println("Long press started");
+  if (button.clicked()) {
+    Serial.println("CLICK");
+  }
+
+  else if (button.doubleClicked()) {
+    Serial.println("DOUBLE CLICK");
+  }
+
+  else if (button.tripleClicked()) {
+    Serial.println("TRIPLE CLICK");
+  }
+
+  else if (button.multiClicked(4)) {
+    Serial.println("4 CLICKS");
+  }
+
+  else if (button.multiClicked(5)) {
+    Serial.println("5 CLICKS");
+  }
+
+  else if (button.longPressed()) {
+    Serial.println("LONG PRESS");
+  }
+
+
+  // ==================================================
+  // State queries
+  //
+  // These are states, not gesture events.
+  // They may remain true for multiple loop iterations.
+  // ==================================================
+
+  if (button.isPressed()) {
+    // The button is currently pressed.
+  }
 
   if (button.isHolding()) {
-    // True continuously after the long-press threshold.
+    // The button is currently in the long-press state.
   }
 
   if (button.heldFor(3000)) {
-    // True continuously while held for at least 3 seconds.
-    // Add your own one-shot guard if the action should happen only once.
+    // The button has currently been held for at least 3 seconds.
+    // This remains true until the button is released.
   }
 
-  if (button.longReleased()) {
-    Serial.print("Long press released after ");
-    Serial.print(button.pressDuration());
-    Serial.println(" ms");
-  }
+  uint32_t duration = button.pressDuration();
+
+  // duration contains the current press duration while pressed,
+  // or the duration of the most recent press after release.
 }
